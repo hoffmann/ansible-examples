@@ -1,0 +1,34 @@
+# Install python 3
+---
+- hosts: all
+  sudo:  yes 
+  vars:
+    tmpdir: "/tmp/python"
+    installdir: "/opt/python"
+    name: "Python"
+    version: "3.4.1"
+  tasks:
+    - name: update apt
+      apt: update_cache=yes
+    - name: install build dependencies 
+      action: apt pkg={{item}} state=installed
+      with_items:
+        - build-essential
+        - libreadline-dev
+        - libncurses5-dev
+        - libssl1.0.0
+        - zlib1g-dev
+        - liblzma-dev
+
+    - name: "make dir"
+      command: mkdir -p {{ tmpdir }}/{{ version }}
+    - name: "wget src"
+      get_url: url=http://www.python.org/ftp/python/{{ version }}/Python-{{ version }}.tgz dest={{ tmpdir }}/{{ version }}
+    - name: "tar"
+      command: tar xzvf Python-{{ version }}.tgz chdir={{ tmpdir }}/{{ version }}
+    - name: "configure"
+      action: command {{ tmpdir }}/{{ version }}/{{ name }}-{{ version }}/configure --prefix={{ installdir }}/{{ version }} chdir={{ tmpdir }}/{{ version }}
+    - name: "make"
+      command: make chdir={{ tmpdir }}/{{ version }}
+    - name: "make install"
+      command: make install chdir={{ tmpdir }}/{{ version }}
