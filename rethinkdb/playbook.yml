@@ -1,0 +1,24 @@
+#VERSION: 0.0.1
+#
+#install rethinkdb
+---
+- hosts: all
+  sudo: yes
+  gather_facts: no
+  tasks:
+  - name: add rethinkdb apt repo
+    apt_repository: repo='deb http://download.rethinkdb.com/apt trusty main'
+  - name: Add repostitory key
+    apt_key: url="http://download.rethinkdb.com/apt/pubkey.gpg"
+  - name: update apt
+    apt: update_cache=yes
+  - name: install rethinkdb
+    apt: pkg=rethinkdb state=present
+  - name: ensure group is present
+    group: name=rethinkdb state=present
+  - name: ensure user is present
+    user: name=rethinkdb state=present
+  - name: copy master config file
+    copy: src=./rethink-master.conf dest=/etc/rethinkdb/instances.d/rethink-master.conf owner=rethinkdb group=rethinkdb mode=664
+  - name: start rethinkdb
+    service: name=rethinkdb state=restarted
