@@ -1,0 +1,24 @@
+#VERSION: 0.0.1
+#
+#install elasticsearch 
+---
+- hosts: all
+  sudo: yes
+  gather_facts: no
+  vars:
+    version: "1.0"
+  tasks:
+    - name: add elasticsearch apt repo
+      apt_repository: repo='deb http://packages.elasticsearch.org/elasticsearch/{{ version }}/debian stable main'
+    - name: Add repostitory key
+      apt_key: url="http://packages.elasticsearch.org/GPG-KEY-elasticsearch"
+    - name: update apt
+      apt: update_cache=yes
+    - name: install elasticsearch 
+      apt: pkg=elasticsearch state=present
+    - name: ensure group is present
+      group: name=elasticsearch state=present
+    - name: ensure user is present
+      user: name=elasticsearch state=present
+    - name: start elasticsearch
+      service: name=elasticsearch state=restarted
